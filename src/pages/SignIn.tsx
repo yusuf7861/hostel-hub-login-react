@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import AuthLayout from "@/components/AuthLayout";
-import { signIn } from "@/api/auth";
+import { signIn, type LoginCredentials } from "@/api/auth";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -34,11 +34,12 @@ const SignIn = () => {
   const onSubmit = async (data: SignInFormValues) => {
     try {
       setIsLoading(true);
-      // Here's the fix: Explicitly cast data to make sure it matches SignInData
-      const result = await signIn({
+      // Explicitly type the data to match LoginCredentials
+      const credentials: LoginCredentials = {
         email: data.email,
         password: data.password
-      });
+      };
+      const result = await signIn(credentials);
       if (result.success) {
         navigate("/"); // Redirect to home page after successful sign-in
       }

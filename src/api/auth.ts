@@ -1,9 +1,10 @@
 
-import { authApi, LoginCredentials, RegisterData } from "./authApi";
+import { authApi } from "./authApi";
+import type { LoginCredentials, RegisterData } from "./authApi";
 import { toast } from "sonner";
 
-// Re-export the interfaces and auth functions
-export { LoginCredentials, RegisterData };
+// Re-export the interfaces as types
+export type { LoginCredentials, RegisterData };
 
 // Auth functions that can be used throughout the app
 export const signIn = async (data: LoginCredentials): Promise<{ success: boolean }> => {
