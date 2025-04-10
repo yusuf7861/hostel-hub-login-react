@@ -41,7 +41,7 @@ const SignIn = () => {
       };
       const result = await signIn(credentials);
       if (result.success) {
-        navigate("/"); // Redirect to home page after successful sign-in
+        navigate("/dashboard"); // Redirect to dashboard page after successful sign-in
       }
     } catch (error) {
       console.error("Sign-in failed:", error);
