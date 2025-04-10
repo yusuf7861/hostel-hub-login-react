@@ -34,7 +34,11 @@ const SignIn = () => {
   const onSubmit = async (data: SignInFormValues) => {
     try {
       setIsLoading(true);
-      const result = await signIn(data);
+      // Here's the fix: Explicitly cast data to make sure it matches SignInData
+      const result = await signIn({
+        email: data.email,
+        password: data.password
+      });
       if (result.success) {
         navigate("/"); // Redirect to home page after successful sign-in
       }
