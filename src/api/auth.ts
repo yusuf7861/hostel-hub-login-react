@@ -1,55 +1,37 @@
 
-import axios from "axios";
+import { authApi, LoginCredentials, RegisterData } from "./authApi";
 import { toast } from "sonner";
 
-// Create axios instance with base URL
-// In a real app, this would point to your backend API
-export const api = axios.create({
-  baseURL: "/api", // This is a placeholder, as we'll mock the API calls for now
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+// Re-export the interfaces and auth functions
+export { LoginCredentials, RegisterData };
 
-// Add response interceptor for error handling
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const message = error.response?.data?.message || "An error occurred";
-    toast.error(message);
-    return Promise.reject(error);
+// Auth functions that can be used throughout the app
+export const signIn = async (data: LoginCredentials): Promise<{ success: boolean }> => {
+  try {
+    await authApi.login(data);
+    toast.success("Signed in successfully!");
+    return { success: true };
+  } catch (error) {
+    return { success: false };
   }
-);
-
-// Auth types
-export interface SignInData {
-  email: string;
-  password: string;
-}
-
-export interface RegisterData {
-  fullName: string;
-  email: string;
-  password: string;
-}
-
-// Auth functions
-export const signIn = async (data: SignInData): Promise<{ success: boolean }> => {
-  // In a real app, this would make an actual API call
-  // For now, we'll simulate a successful response after a delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  
-  // For demo purposes, let's say any login succeeds
-  toast.success("Signed in successfully!");
-  return { success: true };
 };
 
 export const register = async (data: RegisterData): Promise<{ success: boolean }> => {
-  // In a real app, this would make an actual API call
-  // For now, we'll simulate a successful response after a delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  
-  // For demo purposes, let's say any registration succeeds
-  toast.success("Registered successfully!");
-  return { success: true };
+  try {
+    await authApi.register(data);
+    toast.success("Registered successfully!");
+    return { success: true };
+  } catch (error) {
+    return { success: false };
+  }
+};
+
+export const logout = async (): Promise<{ success: boolean }> => {
+  try {
+    await authApi.logout();
+    toast.success("Logged out successfully!");
+    return { success: true };
+  } catch (error) {
+    return { success: false };
+  }
 };

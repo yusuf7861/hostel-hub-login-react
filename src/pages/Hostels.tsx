@@ -1,18 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Building2, Loader2, DoorOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NavBar from "@/components/NavBar";
-import axios from "axios";
-
-interface Hostel {
-  id: number;
-  name: string;
-  location: string;
-  contactNumber: string;
-}
+import { Hostel } from "@/api/publicApi";
+import { publicApi } from "@/api/publicApi";
+import { toast } from "sonner";
 
 interface Room {
   id: number;
@@ -34,8 +29,8 @@ const Hostels = () => {
     setLoadingHostels(true);
     setError(null);
     try {
-      const response = await axios.get("http://localhost:8080/hostels");
-      setHostels(response.data);
+      const data = await publicApi.getHostels();
+      setHostels(data);
     } catch (err) {
       console.error("Error fetching hostels:", err);
       setError("Failed to load hostels. Please try again.");
@@ -49,8 +44,7 @@ const Hostels = () => {
     setError(null);
     try {
       // This would be the actual endpoint in a real application
-      // For now, we'll simulate some sample data
-      // const response = await axios.get(`http://localhost:8080/hostels/${hostelId}/rooms`);
+      // For now, we'll simulate some sample data since the API endpoint doesn't exist yet
       
       // Simulated response for demo purposes
       const sampleRooms: Room[] = [
@@ -63,6 +57,7 @@ const Hostels = () => {
       await new Promise(resolve => setTimeout(resolve, 500));
       
       setRooms(prev => ({ ...prev, [hostelId]: sampleRooms }));
+      toast.success(`Rooms for ${hostels.find(h => h.id === hostelId)?.name} loaded`);
     } catch (err) {
       console.error(`Error fetching rooms for hostel ${hostelId}:`, err);
       setError(`Failed to load rooms for hostel ${hostelId}. Please try again.`);
@@ -72,9 +67,9 @@ const Hostels = () => {
   };
 
   // Load hostels when component mounts
-  useState(() => {
+  useEffect(() => {
     fetchHostels();
-  });
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
