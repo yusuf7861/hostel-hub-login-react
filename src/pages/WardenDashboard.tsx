@@ -9,31 +9,36 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import NavBar from "@/components/NavBar";
 import StudentList from "@/components/warden/StudentList";
 import RoomApproval from "@/components/warden/RoomApproval";
-import { AlertCircle, Users } from "lucide-react";
+import { AlertCircle, LogOut, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { logout } from "@/api/auth";
+import { useNavigate } from "react-router-dom";
 
 const WardenDashboard = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("students");
 
   const { data: students, isLoading, error } = useQuery({
     queryKey: ["warden-students"],
     queryFn: wardenApi.getStudents,
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to fetch students data. Please try again.",
-        variant: "destructive",
-      });
+    onSettled: (data, error) => {
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch students data. Please try again.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
+  const handleLogout = async () => {
+    const result = await logout();
+    if (result.success) {
+      navigate("/signin");
+    }
   };
 
   if (error) {
@@ -103,6 +108,16 @@ const WardenDashboard = () => {
                   <Users size={18} />
                   Room Approvals
                 </button>
+                <div className="pt-4">
+                  <Button 
+                    variant="outline" 
+                    className="flex w-full items-center gap-2 text-red-500 hover:bg-red-50 hover:text-red-600"
+                    onClick={handleLogout}
+                  >
+                    <LogOut size={18} />
+                    Logout
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

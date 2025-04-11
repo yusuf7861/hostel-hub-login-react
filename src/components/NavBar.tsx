@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Building2, LayoutDashboard, UserCog } from "lucide-react";
+import { Building2, LayoutDashboard, Shield, UserCog } from "lucide-react";
 import Logo from "./Logo";
 
 const NavBar = () => {
@@ -29,6 +29,12 @@ const NavBar = () => {
             <Button variant="ghost" className="flex items-center gap-2">
               <UserCog size={18} />
               Warden
+            </Button>
+          </Link>
+          <Link to="/admin">
+            <Button variant="ghost" className="flex items-center gap-2">
+              <Shield size={18} />
+              Admin
             </Button>
           </Link>
           <Link to="/signin">
