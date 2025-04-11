@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   User, 
@@ -8,7 +8,10 @@ import {
   Book,
   Calendar,
   Home as HomeIcon,
-  Bell
+  Bell,
+  CreditCard,
+  MessageSquare,
+  ChevronDown
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,38 +28,25 @@ import {
 import { studentApi } from "@/api/studentApi";
 import { logout } from "@/api/auth";
 import { toast } from "sonner";
-
-interface StudentProfile {
-  id?: number;
-  name: string;
-  email: string;
-  rollNumber: string;
-  contactNumber: string;
-  hostelId?: number;
-  roomId?: number;
-}
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import StudentProfileTab from "@/components/student/StudentProfileTab";
+import BookingsTab from "@/components/student/BookingsTab";
+import PaymentsTab from "@/components/student/PaymentsTab";
+import ComplaintsTab from "@/components/student/ComplaintsTab";
+import { useQuery } from "@tanstack/react-query";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<StudentProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("profile");
 
-  useEffect(() => {
-    const fetchStudentProfile = async () => {
-      try {
-        setIsLoading(true);
-        const data = await studentApi.getStudentProfile();
-        setProfile(data);
-      } catch (error) {
-        toast.error("Failed to load profile");
-        console.error("Error fetching profile:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchStudentProfile();
-  }, []);
+  const { data: profile, isLoading, error } = useQuery({
+    queryKey: ['studentProfile'],
+    queryFn: studentApi.getStudentProfile,
+    onError: (error) => {
+      toast.error("Failed to load profile");
+      console.error("Error fetching profile:", error);
+    }
+  });
 
   const handleLogout = async () => {
     const result = await logout();
@@ -66,8 +56,7 @@ const StudentDashboard = () => {
   };
 
   const handleProfileClick = () => {
-    // Navigate to profile page when implemented
-    toast.info("Profile page coming soon!");
+    setActiveTab("profile");
   };
 
   const handleSettingsClick = () => {
@@ -92,17 +81,37 @@ const StudentDashboard = () => {
         <div className="text-xl font-bold mb-6">Student Portal</div>
         
         <nav className="flex-1 space-y-2">
-          <Button variant="ghost" className="w-full justify-start">
-            <HomeIcon className="mr-2 h-4 w-4" />
-            Dashboard
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start"
+            onClick={() => setActiveTab("profile")}
+          >
+            <User className="mr-2 h-4 w-4" />
+            Profile
           </Button>
-          <Button variant="ghost" className="w-full justify-start">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start"
+            onClick={() => setActiveTab("bookings")}
+          >
             <Calendar className="mr-2 h-4 w-4" />
-            Attendance
+            Bookings
           </Button>
-          <Button variant="ghost" className="w-full justify-start">
-            <Book className="mr-2 h-4 w-4" />
-            Courses
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start"
+            onClick={() => setActiveTab("payments")}
+          >
+            <CreditCard className="mr-2 h-4 w-4" />
+            Payments
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start"
+            onClick={() => setActiveTab("complaints")}
+          >
+            <MessageSquare className="mr-2 h-4 w-4" />
+            Complaints
           </Button>
         </nav>
         
@@ -178,83 +187,34 @@ const StudentDashboard = () => {
               <div className="flex items-center justify-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
               </div>
-            ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Student Information</CardTitle>
-                    <CardDescription>Your personal details</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {profile && (
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-sm text-muted-foreground">Name:</span>
-                          <span className="font-medium">{profile.name}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-muted-foreground">Roll Number:</span>
-                          <span className="font-medium">{profile.rollNumber}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-muted-foreground">Email:</span>
-                          <span className="font-medium">{profile.email}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-muted-foreground">Contact:</span>
-                          <span className="font-medium">{profile.contactNumber}</span>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Hostel Information</CardTitle>
-                    <CardDescription>Your accommodation details</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {profile?.hostelId ? (
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-sm text-muted-foreground">Hostel ID:</span>
-                          <span className="font-medium">{profile.hostelId}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-muted-foreground">Room Number:</span>
-                          <span className="font-medium">{profile.roomId || "Not assigned"}</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-4">
-                        <p className="text-muted-foreground">No hostel assigned yet</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
-                    <CardDescription>Commonly used features</CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex flex-col gap-2">
-                    <Button variant="outline" className="justify-start">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      View Attendance
-                    </Button>
-                    <Button variant="outline" className="justify-start">
-                      <Book className="mr-2 h-4 w-4" />
-                      View Courses
-                    </Button>
-                    <Button variant="outline" className="justify-start" onClick={handleProfileClick}>
-                      <User className="mr-2 h-4 w-4" />
-                      Edit Profile
-                    </Button>
-                  </CardContent>
-                </Card>
+            ) : error ? (
+              <div className="text-center py-8">
+                <p className="text-red-500">There was an error loading your profile.</p>
+                <Button onClick={() => window.location.reload()} className="mt-4">
+                  Try Again
+                </Button>
               </div>
+            ) : (
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="mb-6">
+                  <TabsTrigger value="profile">Profile</TabsTrigger>
+                  <TabsTrigger value="bookings">Bookings</TabsTrigger>
+                  <TabsTrigger value="payments">Payments</TabsTrigger>
+                  <TabsTrigger value="complaints">Complaints</TabsTrigger>
+                </TabsList>
+                <TabsContent value="profile">
+                  <StudentProfileTab profile={profile} />
+                </TabsContent>
+                <TabsContent value="bookings">
+                  <BookingsTab studentId={profile?.id} />
+                </TabsContent>
+                <TabsContent value="payments">
+                  <PaymentsTab studentId={profile?.id} />
+                </TabsContent>
+                <TabsContent value="complaints">
+                  <ComplaintsTab studentId={profile?.id} />
+                </TabsContent>
+              </Tabs>
             )}
           </div>
         </main>

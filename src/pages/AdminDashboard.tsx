@@ -1,182 +1,200 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Shield, User, LogOut, Users, Building2, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import NavBar from "@/components/NavBar";
-import { Building2, LogOut, Shield, User, UserCog, Users } from "lucide-react";
-import { publicApi } from "@/api/publicApi";
-import { studentApi } from "@/api/studentApi";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { logout } from "@/api/auth";
+import { Card, CardContent } from "@/components/ui/card";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { adminApi } from "@/api/adminApi";
 import { useNavigate } from "react-router-dom";
-import WardenRegistration from "@/components/admin/WardenRegistration";
-import StudentsList from "@/components/admin/StudentsList";
+import { logout } from "@/api/auth";
 import WardensList from "@/components/admin/WardensList";
+import StudentsList from "@/components/admin/StudentsList";
 import HostelsList from "@/components/admin/HostelsList";
+import WardenRegistration from "@/components/admin/WardenRegistration";
+import { toast } from "sonner";
 
 const AdminDashboard = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("students");
+  const [activeTab, setActiveTab] = useState("wardens");
 
-  // Fetch data for the dashboard
-  const { data: students, isLoading: studentsLoading } = useQuery({
-    queryKey: ["admin-students"],
-    queryFn: studentApi.getAllStudents,
-    onSettled: (data, error) => {
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch students data",
-          variant: "destructive",
-        });
-      }
-    },
+  const { data: wardens, isLoading: isWardensLoading, error: wardensError } = useQuery({
+    queryKey: ['adminWardens'],
+    queryFn: () => adminApi.getAllWardens(),
+    onError: (error) => {
+      toast.error("Failed to load wardens");
+      console.error("Error fetching wardens:", error);
+    }
   });
 
-  const { data: hostels, isLoading: hostelsLoading } = useQuery({
-    queryKey: ["admin-hostels"],
-    queryFn: publicApi.getHostels,
-    onSettled: (data, error) => {
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch hostels data",
-          variant: "destructive",
-        });
-      }
-    },
+  const { data: students, isLoading: isStudentsLoading, error: studentsError } = useQuery({
+    queryKey: ['adminStudents'],
+    queryFn: () => adminApi.getAllStudents(),
+    onError: (error) => {
+      toast.error("Failed to load students");
+      console.error("Error fetching students:", error);
+    }
   });
 
   const handleLogout = async () => {
     const result = await logout();
     if (result.success) {
       navigate("/signin");
+      toast.success("Logged out successfully");
     }
   };
 
+  const isLoading = isWardensLoading || isStudentsLoading;
+  const hasError = wardensError || studentsError;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <NavBar />
-      <div className="container mx-auto py-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage wardens, students, and hostels</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="font-medium">Admin Portal</p>
-              <p className="text-sm text-muted-foreground">System Administrator</p>
-            </div>
-            <Avatar className="h-12 w-12">
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                <Shield size={20} />
-              </AvatarFallback>
-            </Avatar>
-          </div>
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <aside className="hidden w-64 flex-col bg-white p-6 shadow-md md:flex">
+        <div className="mb-6 text-2xl font-bold">Admin Portal</div>
+        <nav className="flex-1 space-y-2">
+          <Button
+            variant="ghost"
+            className="w-full justify-start"
+            onClick={() => setActiveTab("wardens")}
+          >
+            <Users className="mr-2 h-4 w-4" />
+            Wardens
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start"
+            onClick={() => setActiveTab("students")}
+          >
+            <User className="mr-2 h-4 w-4" />
+            Students
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start"
+            onClick={() => setActiveTab("hostels")}
+          >
+            <Building2 className="mr-2 h-4 w-4" />
+            Hostels
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start"
+            onClick={() => setActiveTab("registerWarden")}
+          >
+            <Shield className="mr-2 h-4 w-4" />
+            Register Warden
+          </Button>
+        </nav>
+        <div className="border-t pt-4">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-red-500" 
+            onClick={handleLogout}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </Button>
         </div>
+      </aside>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-          {/* Sidebar */}
-          <Card className="md:col-span-1">
-            <CardHeader>
-              <CardTitle>Dashboard</CardTitle>
-              <CardDescription>System administration</CardDescription>
-              <div className="mt-2">
-                <Badge variant="outline" className="bg-primary/10">
-                  Admin
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="px-2">
-              <div className="space-y-1">
-                <button
-                  onClick={() => setActiveTab("students")}
-                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
-                    activeTab === "students" ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-                  }`}
-                >
-                  <Users size={18} />
-                  Students
-                </button>
-                <button
-                  onClick={() => setActiveTab("wardens")}
-                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
-                    activeTab === "wardens" ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-                  }`}
-                >
-                  <UserCog size={18} />
-                  Wardens
-                </button>
-                <button
-                  onClick={() => setActiveTab("hostels")}
-                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
-                    activeTab === "hostels" ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-                  }`}
-                >
-                  <Building2 size={18} />
-                  Hostels
-                </button>
-                <button
-                  onClick={() => setActiveTab("register-warden")}
-                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
-                    activeTab === "register-warden" ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-                  }`}
-                >
-                  <User size={18} />
-                  Register Warden
-                </button>
-                <div className="pt-4">
-                  <Button 
-                    variant="outline" 
-                    className="flex w-full items-center gap-2 text-red-500 hover:bg-red-50 hover:text-red-600"
-                    onClick={handleLogout}
-                  >
-                    <LogOut size={18} />
-                    Logout
+      {/* Main content */}
+      <div className="flex flex-1 flex-col">
+        {/* Header */}
+        <header className="border-b bg-white p-4 shadow-sm">
+          <div className="container mx-auto flex items-center justify-between">
+            <h1 className="text-xl font-bold md:hidden">Admin Portal</h1>
+            <div className="flex items-center gap-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar>
+                      <AvatarImage src="" alt="Admin profile" />
+                      <AvatarFallback>AD</AvatarFallback>
+                    </Avatar>
                   </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Main Content */}
-          <div className="md:col-span-3">
-            <Card>
-              <CardContent className="p-6">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="mb-4 grid w-full grid-cols-4">
-                    <TabsTrigger value="students">Students</TabsTrigger>
-                    <TabsTrigger value="wardens">Wardens</TabsTrigger>
-                    <TabsTrigger value="hostels">Hostels</TabsTrigger>
-                    <TabsTrigger value="register-warden">Register Warden</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="students">
-                    <StudentsList students={students || []} isLoading={studentsLoading} />
-                  </TabsContent>
-                  
-                  <TabsContent value="wardens">
-                    <WardensList isLoading={false} />
-                  </TabsContent>
-                  
-                  <TabsContent value="hostels">
-                    <HostelsList hostels={hostels || []} isLoading={hostelsLoading} />
-                  </TabsContent>
-                  
-                  <TabsContent value="register-warden">
-                    <WardenRegistration />
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">Admin User</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        admin@example.com
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
-        </div>
+        </header>
+
+        {/* Dashboard content */}
+        <main className="flex-1 p-6">
+          <div className="container mx-auto">
+            <h1 className="mb-6 text-2xl font-bold">Admin Dashboard</h1>
+            {isLoading ? (
+              <div className="flex h-64 items-center justify-center">
+                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+              </div>
+            ) : hasError ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <p className="text-red-500">Error loading data. Please try again.</p>
+                    <Button className="mt-4" onClick={() => window.location.reload()}>
+                      Refresh
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="mb-6">
+                  <TabsTrigger value="wardens">Wardens</TabsTrigger>
+                  <TabsTrigger value="students">Students</TabsTrigger>
+                  <TabsTrigger value="hostels">Hostels</TabsTrigger>
+                  <TabsTrigger value="registerWarden">Register Warden</TabsTrigger>
+                </TabsList>
+                <TabsContent value="wardens">
+                  <WardensList wardens={wardens || []} />
+                </TabsContent>
+                <TabsContent value="students">
+                  <StudentsList students={students || []} />
+                </TabsContent>
+                <TabsContent value="hostels">
+                  <HostelsList />
+                </TabsContent>
+                <TabsContent value="registerWarden">
+                  <WardenRegistration />
+                </TabsContent>
+              </Tabs>
+            )}
+          </div>
+        </main>
       </div>
     </div>
   );
