@@ -7,35 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Loader2, UserCog } from "lucide-react";
 
 interface WardensListProps {
+  wardens?: Warden[];
   isLoading: boolean;
 }
 
-// Mock data for display purposes
-const mockWardens: Warden[] = [
-  {
-    id: 1,
-    name: "John Smith",
-    email: "john.smith@example.com",
-    contactNumber: "+1234567890",
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    email: "sarah.johnson@example.com",
-    contactNumber: "+1987654321",
-  },
-  {
-    id: 3,
-    name: "Michael Brown",
-    email: "michael.brown@example.com",
-    contactNumber: "+1567890123",
-  },
-];
-
-const WardensList = ({ isLoading }: WardensListProps) => {
+const WardensList = ({ wardens = [], isLoading }: WardensListProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [wardens] = useState<Warden[]>(mockWardens);
-
+  
   const filteredWardens = wardens.filter((warden) => 
     warden.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     warden.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
