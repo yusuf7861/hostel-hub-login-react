@@ -28,12 +28,14 @@ const WardenDashboard = () => {
 
   const { data: students, isLoading, error } = useQuery({
     queryKey: ['wardenStudents'],
-    queryFn: () => wardenApi.getStudentsForWarden(),
-    onError: (error) => {
-      toast.error("Failed to load students");
-      console.error("Error fetching students:", error);
-    }
+    queryFn: () => wardenApi.getStudentsForWarden()
   });
+
+  // Handle error case separately to avoid the onError property
+  if (error) {
+    toast.error("Failed to load students");
+    console.error("Error fetching students:", error);
+  }
 
   const handleLogout = async () => {
     const result = await logout();
@@ -149,10 +151,10 @@ const WardenDashboard = () => {
                   <TabsTrigger value="roomApprovals">Room Approvals</TabsTrigger>
                 </TabsList>
                 <TabsContent value="students">
-                  <StudentList students={students || []} />
+                  <StudentList students={students || []} isLoading={isLoading} />
                 </TabsContent>
                 <TabsContent value="roomApprovals">
-                  <RoomApproval students={students || []} />
+                  <RoomApproval students={students || []} isLoading={isLoading} />
                 </TabsContent>
               </Tabs>
             )}

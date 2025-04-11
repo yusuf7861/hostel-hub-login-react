@@ -29,21 +29,24 @@ const AdminDashboard = () => {
 
   const { data: wardens, isLoading: isWardensLoading, error: wardensError } = useQuery({
     queryKey: ['adminWardens'],
-    queryFn: () => adminApi.getAllWardens(),
-    onError: (error) => {
-      toast.error("Failed to load wardens");
-      console.error("Error fetching wardens:", error);
-    }
+    queryFn: () => adminApi.getAllWardens()
   });
 
   const { data: students, isLoading: isStudentsLoading, error: studentsError } = useQuery({
     queryKey: ['adminStudents'],
-    queryFn: () => adminApi.getAllStudents(),
-    onError: (error) => {
-      toast.error("Failed to load students");
-      console.error("Error fetching students:", error);
-    }
+    queryFn: () => adminApi.getAllStudents()
   });
+
+  // If there are errors, show error toasts
+  if (wardensError) {
+    toast.error("Failed to load wardens");
+    console.error("Error fetching wardens:", wardensError);
+  }
+
+  if (studentsError) {
+    toast.error("Failed to load students");
+    console.error("Error fetching students:", studentsError);
+  }
 
   const handleLogout = async () => {
     const result = await logout();
@@ -180,13 +183,13 @@ const AdminDashboard = () => {
                   <TabsTrigger value="registerWarden">Register Warden</TabsTrigger>
                 </TabsList>
                 <TabsContent value="wardens">
-                  <WardensList wardens={wardens || []} />
+                  <WardensList wardens={wardens || []} isLoading={isWardensLoading} />
                 </TabsContent>
                 <TabsContent value="students">
-                  <StudentsList students={students || []} />
+                  <StudentsList students={students || []} isLoading={isStudentsLoading} />
                 </TabsContent>
                 <TabsContent value="hostels">
-                  <HostelsList />
+                  <HostelsList hostels={[]} isLoading={false} />
                 </TabsContent>
                 <TabsContent value="registerWarden">
                   <WardenRegistration />

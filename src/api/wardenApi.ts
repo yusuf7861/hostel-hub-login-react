@@ -9,4 +9,10 @@ export const wardenApi = {
     const response = await apiClient.get<Student[]>("/api/warden/students");
     return response.data;
   },
+  
+  // Get students for warden
+  getStudentsForWarden: async () => {
+    const response = await apiClient.get<Student[]>("/api/warden/students");
+    return response.data;
+  },
 };

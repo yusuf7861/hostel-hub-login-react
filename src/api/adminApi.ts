@@ -1,5 +1,6 @@
 
 import { apiClient } from "./client";
+import { Student } from "./studentApi";
 
 export interface Warden {
   id?: number;
@@ -37,6 +38,18 @@ export const adminApi = {
   // Add a new room
   addRoom: async (roomData: Room) => {
     const response = await apiClient.post("/api/admin/rooms/add", roomData);
+    return response.data;
+  },
+
+  // Get all wardens
+  getAllWardens: async () => {
+    const response = await apiClient.get<Warden[]>("/api/admin/wardens");
+    return response.data;
+  },
+
+  // Get all students
+  getAllStudents: async () => {
+    const response = await apiClient.get<Student[]>("/api/admin/students");
     return response.data;
   },
 };
