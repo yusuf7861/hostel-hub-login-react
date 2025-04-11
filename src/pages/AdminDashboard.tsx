@@ -1,7 +1,19 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Shield, User, LogOut, Users, Building2, Settings } from "lucide-react";
+import { 
+  Shield, 
+  User, 
+  LogOut, 
+  Users, 
+  Building2, 
+  Settings, 
+  Activity,
+  FileText,
+  CheckCircle,
+  PieChart,
+  UserPlus
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -22,10 +34,53 @@ import StudentsList from "@/components/admin/StudentsList";
 import HostelsList from "@/components/admin/HostelsList";
 import WardenRegistration from "@/components/admin/WardenRegistration";
 import { toast } from "sonner";
+import { StatsCard } from "@/components/ui/dashboard/stats-card";
+import { ActivityChart } from "@/components/ui/dashboard/activity-chart";
+import { RecentActivity } from "@/components/ui/dashboard/recent-activity";
+import { DashboardIllustration } from "@/components/assets";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+// Sample data for the activity chart
+const occupancyData = [
+  { name: "Jan", value: 65 },
+  { name: "Feb", value: 70 },
+  { name: "Mar", value: 75 },
+  { name: "Apr", value: 80 },
+  { name: "May", value: 85 },
+  { name: "Jun", value: 90 },
+  { name: "Jul", value: 92 },
+  { name: "Aug", value: 88 },
+];
+
+// Sample data for recent activities
+const recentActivities = [
+  {
+    id: "1",
+    user: { name: "System", initials: "SY" },
+    action: "generated monthly report",
+    timestamp: "1 hour ago",
+    actionType: "info"
+  },
+  {
+    id: "2",
+    user: { name: "Admin", initials: "AD" },
+    action: "registered new warden",
+    timestamp: "Yesterday",
+    actionType: "success"
+  },
+  {
+    id: "3",
+    user: { name: "Warden", initials: "WD" },
+    action: "requested maintenance for Block C",
+    timestamp: "2 days ago",
+    actionType: "warning"
+  },
+];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("wardens");
+  const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState("overview");
 
   const { data: wardens, isLoading: isWardensLoading, error: wardensError } = useQuery({
     queryKey: ['adminWardens'],
@@ -59,6 +114,12 @@ const AdminDashboard = () => {
   const isLoading = isWardensLoading || isStudentsLoading;
   const hasError = wardensError || studentsError;
 
+  // Calculate stats
+  const totalWardens = wardens?.length || 0;
+  const totalStudents = students?.length || 0;
+  const totalHostels = 5; // Example static value
+  const occupancyRate = 88; // Example static value
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
@@ -67,7 +128,15 @@ const AdminDashboard = () => {
         <nav className="flex-1 space-y-2">
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className={`w-full justify-start ${activeTab === "overview" ? "bg-primary/10" : ""}`}
+            onClick={() => setActiveTab("overview")}
+          >
+            <Activity className="mr-2 h-4 w-4" />
+            Overview
+          </Button>
+          <Button
+            variant="ghost"
+            className={`w-full justify-start ${activeTab === "wardens" ? "bg-primary/10" : ""}`}
             onClick={() => setActiveTab("wardens")}
           >
             <Users className="mr-2 h-4 w-4" />
@@ -75,7 +144,7 @@ const AdminDashboard = () => {
           </Button>
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className={`w-full justify-start ${activeTab === "students" ? "bg-primary/10" : ""}`}
             onClick={() => setActiveTab("students")}
           >
             <User className="mr-2 h-4 w-4" />
@@ -83,7 +152,7 @@ const AdminDashboard = () => {
           </Button>
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className={`w-full justify-start ${activeTab === "hostels" ? "bg-primary/10" : ""}`}
             onClick={() => setActiveTab("hostels")}
           >
             <Building2 className="mr-2 h-4 w-4" />
@@ -91,7 +160,7 @@ const AdminDashboard = () => {
           </Button>
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className={`w-full justify-start ${activeTab === "registerWarden" ? "bg-primary/10" : ""}`}
             onClick={() => setActiveTab("registerWarden")}
           >
             <Shield className="mr-2 h-4 w-4" />
@@ -156,7 +225,7 @@ const AdminDashboard = () => {
         </header>
 
         {/* Dashboard content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 overflow-auto">
           <div className="container mx-auto">
             <h1 className="mb-6 text-2xl font-bold">Admin Dashboard</h1>
             {isLoading ? (
@@ -177,11 +246,68 @@ const AdminDashboard = () => {
             ) : (
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="mb-6">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="wardens">Wardens</TabsTrigger>
                   <TabsTrigger value="students">Students</TabsTrigger>
                   <TabsTrigger value="hostels">Hostels</TabsTrigger>
                   <TabsTrigger value="registerWarden">Register Warden</TabsTrigger>
                 </TabsList>
+                
+                <TabsContent value="overview">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <StatsCard 
+                      title="Total Students" 
+                      value={totalStudents}
+                      icon={<Users className="h-4 w-4" />}
+                      description="Registered students"
+                      trend={{ value: 12, isPositive: true }}
+                    />
+                    <StatsCard 
+                      title="Total Wardens" 
+                      value={totalWardens}
+                      icon={<Shield className="h-4 w-4" />}
+                      description="Active staff members"
+                    />
+                    <StatsCard 
+                      title="Hostels" 
+                      value={totalHostels}
+                      icon={<Building2 className="h-4 w-4" />}
+                      description="Managed properties"
+                    />
+                    <StatsCard 
+                      title="Occupancy Rate" 
+                      value={`${occupancyRate}%`}
+                      icon={<PieChart className="h-4 w-4" />}
+                      description="Current occupancy"
+                      trend={{ value: 5, isPositive: true }}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <ActivityChart 
+                      title="Hostel Occupancy Trends" 
+                      data={occupancyData}
+                      className="lg:col-span-2"
+                    />
+                    
+                    {!isMobile && (
+                      <Card className="overflow-hidden flex items-center justify-center p-6 bg-primary/5">
+                        <img 
+                          src={DashboardIllustration} 
+                          alt="Admin Dashboard" 
+                          className="max-w-full h-auto object-contain max-h-[250px]" 
+                        />
+                      </Card>
+                    )}
+                    
+                    <RecentActivity 
+                      title="Recent Activities" 
+                      activities={recentActivities}
+                      className="lg:col-span-3"
+                    />
+                  </div>
+                </TabsContent>
+                
                 <TabsContent value="wardens">
                   <WardensList wardens={wardens || []} isLoading={isWardensLoading} />
                 </TabsContent>
