@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { studentApi } from "@/api/studentApi";
+import { studentApi, UpdateStudent } from "@/api/studentApi";
 
 interface StudentProfileProps {
   profile: any;
@@ -41,10 +41,13 @@ const StudentProfileTab = ({ profile }: StudentProfileProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await studentApi.updateStudent({
-        id: profile.id,
-        ...formData,
-      });
+      // Create a properly typed update object
+      const updateData: UpdateStudent = {
+        email: formData.email,
+        contactNumber: formData.contactNumber,
+      };
+      
+      await studentApi.updateStudent(updateData);
       toast.success("Profile updated successfully");
       setIsEditing(false);
     } catch (error) {

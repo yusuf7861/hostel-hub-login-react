@@ -23,8 +23,8 @@ const StudentsList = ({ students, isLoading }: StudentsListProps) => {
 
   const filteredStudents = students.filter((student) => 
     student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (student.rollNumber && student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (student.email && student.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (isLoading) {
@@ -67,11 +67,11 @@ const StudentsList = ({ students, isLoading }: StudentsListProps) => {
             </TableHeader>
             <TableBody>
               {filteredStudents.map((student) => (
-                <TableRow key={student.id || student.rollNumber}>
+                <TableRow key={student.id || (student.rollNumber || '')}>
                   <TableCell className="font-medium">{student.name}</TableCell>
-                  <TableCell>{student.rollNumber}</TableCell>
-                  <TableCell>{student.email}</TableCell>
-                  <TableCell>{student.contactNumber}</TableCell>
+                  <TableCell>{student.rollNumber || 'N/A'}</TableCell>
+                  <TableCell>{student.email || 'N/A'}</TableCell>
+                  <TableCell>{student.contactNumber || student.phone || 'N/A'}</TableCell>
                   <TableCell>
                     {student.roomId ? `Room #${student.roomId}` : "Not assigned"}
                   </TableCell>

@@ -11,6 +11,12 @@ export interface Student {
   department: string;
   collegeName: string;
   address: string;
+  // Add missing properties that are used in components
+  email?: string;
+  rollNumber?: string;
+  contactNumber?: string;
+  roomId?: number;
+  hostelId?: number;
 }
 
 export interface StudentRegistration {
@@ -24,20 +30,22 @@ export interface StudentRegistration {
   "address": "string"
 }
 
-export interface UpdateStudent
-{
-  "guardianContactNumber": "string",
-  "phone": "5230735215",
-  "department": "string",
-  "address": "string",
-  "collegeName": "string"
+export interface UpdateStudent {
+  "guardianContactNumber"?: string;
+  "phone"?: string;
+  "department"?: string;
+  "address"?: string;
+  "collegeName"?: string;
+  // Add email field to match what's being used in StudentProfileTab
+  "email"?: string;
+  "contactNumber"?: string;
 }
 
 // Student API calls
 export const studentApi = {
   // Update student information
-  updateStudent: async (UpdateStudent: UpdateStudent) => {
-    const response = await apiClient.put("/api/student/update", UpdateStudent);
+  updateStudent: async (updateData: UpdateStudent) => {
+    const response = await apiClient.put("/api/student/update", updateData);
     return response.data;
   },
 
