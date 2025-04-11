@@ -7,10 +7,8 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  fullName: string;
   email: string;
   password: string;
-  role?: string;
 }
 
 // Auth API calls

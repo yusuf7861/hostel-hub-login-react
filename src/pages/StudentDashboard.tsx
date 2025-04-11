@@ -51,7 +51,7 @@ const StudentDashboard = () => {
   const handleLogout = async () => {
     const result = await logout();
     if (result.success) {
-      navigate("/signin");
+      navigate("/SignIn");
     }
   };
 

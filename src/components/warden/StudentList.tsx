@@ -69,9 +69,7 @@ const StudentList = ({ students, isLoading }: StudentListProps) => {
   };
 
   const filteredStudents = students.filter((student) => 
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase())
+    student.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) {
@@ -105,16 +103,16 @@ const StudentList = ({ students, isLoading }: StudentListProps) => {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Roll Number</TableHead>
-                <TableHead>Email</TableHead>
                 <TableHead>Contact</TableHead>
-                <TableHead>Room</TableHead>
+                <TableHead>Guardian Name</TableHead>
+                <TableHead>Guardian Contact</TableHead>
+                <TableHead>Room Allotted</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredStudents.map((student) => (
-                <TableRow key={student.id || student.rollNumber}>
+                <TableRow key={student.id}>
                   <TableCell>
                     {editingStudentId === student.id ? (
                       <Input
@@ -129,34 +127,34 @@ const StudentList = ({ students, isLoading }: StudentListProps) => {
                   <TableCell>
                     {editingStudentId === student.id ? (
                       <Input
-                        name="rollNumber"
-                        value={editFormData.rollNumber || ""}
+                        name="phone"
+                        value={editFormData.phone || ""}
                         onChange={handleChange}
                       />
                     ) : (
-                      student.rollNumber
+                      student.phone
                     )}
                   </TableCell>
                   <TableCell>
                     {editingStudentId === student.id ? (
                       <Input
-                        name="email"
-                        value={editFormData.email || ""}
+                        name="guardianName"
+                        value={editFormData.guardianName || ""}
                         onChange={handleChange}
                       />
                     ) : (
-                      student.email
+                      student.guardianName
                     )}
                   </TableCell>
                   <TableCell>
                     {editingStudentId === student.id ? (
                       <Input
-                        name="contactNumber"
-                        value={editFormData.contactNumber || ""}
+                        name="guardianContactNumber"
+                        value={editFormData.guardianContactNumber || ""}
                         onChange={handleChange}
                       />
                     ) : (
-                      student.contactNumber
+                      student.guardianContactNumber
                     )}
                   </TableCell>
                   <TableCell>

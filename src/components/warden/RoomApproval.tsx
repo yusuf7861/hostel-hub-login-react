@@ -29,7 +29,7 @@ interface RoomAssignment {
   studentId: number;
   hostelId: number;
   roomId: number;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'checked_in' | 'checked_out';
 }
 
 // Mock data for room assignments
@@ -119,7 +119,6 @@ const RoomApproval = ({ students, isLoading }: RoomApprovalProps) => {
 
   const filteredStudents = studentsWithRooms.filter(student => 
     student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (student.roomAssignment && 
       String(student.roomAssignment.roomId).includes(searchTerm))
   );
@@ -158,7 +157,7 @@ const RoomApproval = ({ students, isLoading }: RoomApprovalProps) => {
             <TableHeader>
               <TableRow>
                 <TableHead>Student Name</TableHead>
-                <TableHead>Roll Number</TableHead>
+                <TableHead>Contact</TableHead>
                 <TableHead>Hostel</TableHead>
                 <TableHead>Room</TableHead>
                 <TableHead>Status</TableHead>
@@ -169,7 +168,7 @@ const RoomApproval = ({ students, isLoading }: RoomApprovalProps) => {
               {filteredStudents.map((student) => (
                 <TableRow key={student.id}>
                   <TableCell className="font-medium">{student.name}</TableCell>
-                  <TableCell>{student.rollNumber}</TableCell>
+                  <TableCell>{student.phone}</TableCell>
                   <TableCell>
                     {student.roomAssignment ? `Hostel #${student.roomAssignment.hostelId}` : "Not assigned"}
                   </TableCell>

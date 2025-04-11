@@ -4,26 +4,40 @@ import { apiClient } from "./client";
 export interface Student {
   id?: number;
   name: string;
-  email: string;
-  rollNumber: string;
-  contactNumber: string;
-  hostelId?: number;
-  roomId?: number;
+  guardianName: string;
+  guardianContactNumber: string;
+  gender: string;
+  phone: string; // validated to be 10 digits
+  department: string;
+  collegeName: string;
+  address: string;
 }
 
 export interface StudentRegistration {
-  name: string;
-  email: string;
-  password: string;
-  rollNumber: string;
-  contactNumber: string;
+  "name": "string",
+  "guardianName": "string",
+  "guardianContactNumber": "string",
+  "gender": "string",
+  "phone": "6821663462",
+  "department": "string",
+  "collegeName": "string",
+  "address": "string"
+}
+
+export interface UpdateStudent
+{
+  "guardianContactNumber": "string",
+  "phone": "5230735215",
+  "department": "string",
+  "address": "string",
+  "collegeName": "string"
 }
 
 // Student API calls
 export const studentApi = {
   // Update student information
-  updateStudent: async (studentData: Partial<Student>) => {
-    const response = await apiClient.put("/api/student/update", studentData);
+  updateStudent: async (UpdateStudent: UpdateStudent) => {
+    const response = await apiClient.put("/api/student/update", UpdateStudent);
     return response.data;
   },
 
