@@ -23,7 +23,7 @@ export const Illustration = React.forwardRef<HTMLDivElement, IllustrationProps>(
           <img
             src={src}
             alt={alt || "Illustration"}
-            className="max-w-full h-auto object-contain"
+            className="max-w-full h-auto object-contain rounded-lg shadow-lg"
           />
         ) : (
           children
