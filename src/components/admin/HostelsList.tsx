@@ -10,6 +10,9 @@ interface HostelsListProps {
 }
 
 const HostelsList = ({ hostels, isLoading }: HostelsListProps) => {
+  // Ensure hostels is always an array
+  const safeHostels = Array.isArray(hostels) ? hostels : [];
+  
   if (isLoading) {
     return (
       <div className="flex h-48 items-center justify-center">
@@ -28,7 +31,7 @@ const HostelsList = ({ hostels, isLoading }: HostelsListProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {hostels.length === 0 ? (
+        {safeHostels.length === 0 ? (
           <div className="flex h-48 items-center justify-center border rounded-md">
             <p className="text-muted-foreground">No hostels found</p>
           </div>
@@ -44,7 +47,7 @@ const HostelsList = ({ hostels, isLoading }: HostelsListProps) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {hostels.map((hostel) => (
+                {safeHostels.map((hostel) => (
                   <TableRow key={hostel.id}>
                     <TableCell>{hostel.id}</TableCell>
                     <TableCell className="font-medium">{hostel.name}</TableCell>

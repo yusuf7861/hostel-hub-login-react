@@ -30,10 +30,19 @@ const Hostels = () => {
     setError(null);
     try {
       const data = await publicApi.getHostels();
-      setHostels(data);
+      // Ensure hostels is always an array
+      if (Array.isArray(data)) {
+        setHostels(data);
+      } else {
+        console.error("API returned non-array data:", data);
+        // If data is not an array, set an empty array
+        setHostels([]);
+        setError("Received invalid data format from server. Please try again.");
+      }
     } catch (err) {
       console.error("Error fetching hostels:", err);
       setError("Failed to load hostels. Please try again.");
+      setHostels([]); // Ensure hostels is an array even on error
     } finally {
       setLoadingHostels(false);
     }
@@ -104,7 +113,7 @@ const Hostels = () => {
         )}
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {hostels.map(hostel => (
+          {Array.isArray(hostels) && hostels.map(hostel => (
             <Card key={hostel.id} className="shadow-sm hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -172,7 +181,7 @@ const Hostels = () => {
             </Card>
           ))}
           
-          {hostels.length === 0 && !loadingHostels && (
+          {Array.isArray(hostels) && hostels.length === 0 && !loadingHostels && (
             <div className="col-span-full text-center py-12">
               <p className="text-muted-foreground mb-4">No hostels found.</p>
               <Button onClick={fetchHostels}>
