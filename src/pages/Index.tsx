@@ -3,6 +3,7 @@ import { ArrowRight, Building2, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import NavBar from "@/components/NavBar";
+import { Illustration, IllustrationContainer } from "@/components/ui/illustration";
 
 const features = [
   {
@@ -31,21 +32,34 @@ const Index = () => {
         {/* Hero Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 auth-gradient">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center space-y-4 text-center text-white">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
-                Simplify Your Hostel Management
-              </h1>
-              <p className="mx-auto max-w-[700px] text-lg md:text-xl">
-                Complete hostel administration solution for managing rooms, students, staff, and more.
-              </p>
-              <div className="space-x-4">
-                <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90">
-                  <Link to="/register">Get Started</Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
-                  <Link to="/signin">Sign In</Link>
-                </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div className="flex flex-col space-y-4 text-white">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
+                  Simplify Your Hostel Management
+                </h1>
+                <p className="max-w-[700px] text-lg md:text-xl">
+                  Complete hostel administration solution for managing rooms, students, staff, and more.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90">
+                    <Link to="/register">Get Started</Link>
+                  </Button>
+                  <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
+                    <Link to="/signin">Sign In</Link>
+                  </Button>
+                </div>
               </div>
+              
+              <IllustrationContainer className="hidden md:flex">
+                <Illustration>
+                  <svg className="w-full h-auto max-w-md" viewBox="0 0 496 496" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="48" y="48" width="400" height="400" rx="16" fill="white" fillOpacity="0.1" />
+                    <rect x="88" y="88" width="320" height="320" rx="8" fill="white" fillOpacity="0.05" />
+                    <path d="M248 148C187.307 148 138 197.307 138 258C138 318.693 187.307 368 248 368C308.693 368 358 318.693 358 258C358 197.307 308.693 148 248 148ZM248 328C209.383 328 178 296.617 178 258C178 219.383 209.383 188 248 188C286.617 188 318 219.383 318 258C318 296.617 286.617 328 248 328Z" fill="white" fillOpacity="0.8" />
+                    <circle cx="248" cy="258" r="30" fill="white" fillOpacity="0.6" />
+                  </svg>
+                </Illustration>
+              </IllustrationContainer>
             </div>
           </div>
         </section>

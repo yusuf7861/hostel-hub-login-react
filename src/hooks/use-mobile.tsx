@@ -1,19 +1,46 @@
-import * as React from "react"
 
-const MOBILE_BREAKPOINT = 768
+import * as React from "react";
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+// Breakpoints that match Tailwind's defaults
+export const BREAKPOINTS = {
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+  "2xl": 1536,
+};
+
+type Breakpoint = keyof typeof BREAKPOINTS;
+
+export function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) {
+      setMatches(media.matches);
     }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
+    
+    const listener = () => setMatches(media.matches);
+    media.addEventListener("change", listener);
+    return () => media.removeEventListener("change", listener);
+  }, [matches, query]);
 
-  return !!isMobile
+  return matches;
+}
+
+export function useBreakpoint(breakpoint: Breakpoint): boolean {
+  return useMediaQuery(`(min-width: ${BREAKPOINTS[breakpoint]}px)`);
+}
+
+export function useIsMobile(): boolean {
+  return !useBreakpoint("md");
+}
+
+export function useIsTablet(): boolean {
+  return useBreakpoint("md") && !useBreakpoint("lg");
+}
+
+export function useIsDesktop(): boolean {
+  return useBreakpoint("lg");
 }
