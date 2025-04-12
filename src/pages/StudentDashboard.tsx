@@ -55,28 +55,28 @@ const activityData = [
   { name: "Aug", value: 91 },
 ];
 
-// Sample data for recent activities
+// Sample data for recent activities with correct actionType values
 const recentActivities = [
   {
     id: "1",
     user: { name: "Admin", initials: "AD" },
     action: "approved your room allocation",
     timestamp: "2 hours ago",
-    actionType: "success"
+    actionType: "success" as const
   },
   {
     id: "2",
     user: { name: "System", initials: "SY" },
     action: "processed your payment",
     timestamp: "1 day ago",
-    actionType: "info"
+    actionType: "info" as const
   },
   {
     id: "3",
     user: { name: "Warden", initials: "WD" },
     action: "responded to your complaint",
     timestamp: "3 days ago",
-    actionType: "info"
+    actionType: "info" as const
   },
 ];
 

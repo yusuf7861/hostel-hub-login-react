@@ -17,7 +17,8 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
-  Calendar
+  Calendar,
+  Edit
 } from "lucide-react";
 import { 
   DropdownMenu,
@@ -39,6 +40,9 @@ import { ActivityChart } from "@/components/ui/dashboard/activity-chart";
 import { RecentActivity } from "@/components/ui/dashboard/recent-activity";
 import { WardenIllustration } from "@/components/assets";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 // Sample data for the activity chart
 const activityData = [
@@ -59,28 +63,53 @@ const recentActivities = [
     user: { name: "John Smith", initials: "JS" },
     action: "requested room allocation",
     timestamp: "30 minutes ago",
-    actionType: "warning"
+    actionType: "warning" as const
   },
   {
     id: "2",
     user: { name: "Mary Johnson", initials: "MJ" },
     action: "filed a maintenance complaint",
     timestamp: "2 hours ago",
-    actionType: "info"
+    actionType: "info" as const
   },
   {
     id: "3",
     user: { name: "Admin", initials: "AD" },
     action: "assigned new students to Block B",
     timestamp: "1 day ago",
-    actionType: "info"
+    actionType: "info" as const
   },
 ];
+
+// Added interface for warden profile
+interface WardenProfile {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  hostelId: number;
+  hostelName?: string;
+}
 
 const WardenDashboard = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("overview");
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [wardenProfile, setWardenProfile] = useState<WardenProfile>({
+    id: 1,
+    name: "John Doe",
+    email: "warden@example.com",
+    phone: "+91 9876543210",
+    hostelId: 1,
+    hostelName: "Block A"
+  });
+  
+  const [formData, setFormData] = useState({
+    name: wardenProfile.name,
+    email: wardenProfile.email,
+    phone: wardenProfile.phone
+  });
 
   const { data: students, isLoading, error } = useQuery({
     queryKey: ['wardenStudents'],
@@ -101,11 +130,40 @@ const WardenDashboard = () => {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleProfileSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setWardenProfile({
+      ...wardenProfile,
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone
+    });
+    setIsEditProfileOpen(false);
+    toast.success("Profile updated successfully");
+  };
+
   // Calculate stats from student data
   const totalStudents = students?.length || 0;
-  const pendingApprovals = students?.filter(s => s.needsApproval)?.length || 0;
-  const occupiedRooms = students?.filter(s => s.roomId)?.length || 0;
+  const pendingApprovals = students?.filter(s => s.roomId === null)?.length || 0;
+  const occupiedRooms = students?.filter(s => s.roomId !== null)?.length || 0;
   const availableRooms = 100 - occupiedRooms; // Assuming 100 total rooms
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map(part => part[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -120,6 +178,14 @@ const WardenDashboard = () => {
           >
             <Activity className="mr-2 h-4 w-4" />
             Overview
+          </Button>
+          <Button
+            variant="ghost"
+            className={`w-full justify-start ${activeTab === "profile" ? "bg-primary/10" : ""}`}
+            onClick={() => setActiveTab("profile")}
+          >
+            <User className="mr-2 h-4 w-4" />
+            Profile
           </Button>
           <Button
             variant="ghost"
@@ -168,21 +234,21 @@ const WardenDashboard = () => {
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar>
                       <AvatarImage src="" alt="Warden profile" />
-                      <AvatarFallback>WD</AvatarFallback>
+                      <AvatarFallback>{getInitials(wardenProfile.name)}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">John Doe</p>
+                      <p className="text-sm font-medium leading-none">{wardenProfile.name}</p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        warden@example.com
+                        {wardenProfile.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("profile")}>
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
@@ -220,6 +286,7 @@ const WardenDashboard = () => {
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="mb-6">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="profile">Profile</TabsTrigger>
                   <TabsTrigger value="students">Students</TabsTrigger>
                   <TabsTrigger value="roomApprovals">Room Approvals</TabsTrigger>
                 </TabsList>
@@ -277,6 +344,120 @@ const WardenDashboard = () => {
                       activities={recentActivities}
                       className="lg:col-span-3"
                     />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="profile">
+                  <div className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle>Warden Profile</CardTitle>
+                            <CardDescription>Your personal and contact information</CardDescription>
+                          </div>
+                          <Dialog open={isEditProfileOpen} onOpenChange={setIsEditProfileOpen}>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Profile
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Edit Your Profile</DialogTitle>
+                                <DialogDescription>
+                                  Update your personal information below
+                                </DialogDescription>
+                              </DialogHeader>
+                              <form onSubmit={handleProfileSubmit}>
+                                <div className="grid gap-4 py-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="name">Full Name</Label>
+                                    <Input
+                                      id="name"
+                                      name="name"
+                                      value={formData.name}
+                                      onChange={handleInputChange}
+                                      placeholder="Your full name"
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="email">Email</Label>
+                                    <Input
+                                      id="email"
+                                      name="email"
+                                      type="email"
+                                      value={formData.email}
+                                      onChange={handleInputChange}
+                                      placeholder="Your email address"
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="phone">Phone Number</Label>
+                                    <Input
+                                      id="phone"
+                                      name="phone"
+                                      value={formData.phone}
+                                      onChange={handleInputChange}
+                                      placeholder="Your phone number"
+                                    />
+                                  </div>
+                                </div>
+                                <DialogFooter>
+                                  <Button type="submit">Save Changes</Button>
+                                </DialogFooter>
+                              </form>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex flex-col md:flex-row gap-8">
+                          <div className="flex flex-col items-center space-y-4">
+                            <Avatar className="h-32 w-32">
+                              <AvatarImage src="" alt="Warden avatar" />
+                              <AvatarFallback className="text-2xl">{getInitials(wardenProfile.name)}</AvatarFallback>
+                            </Avatar>
+                            <Button variant="outline" size="sm">
+                              Upload Photo
+                            </Button>
+                          </div>
+                          <div className="flex-1 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium text-muted-foreground">Full Name</p>
+                                <p className="flex items-center">
+                                  <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  {wardenProfile.name}
+                                </p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium text-muted-foreground">Email</p>
+                                <p className="flex items-center">
+                                  <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  {wardenProfile.email}
+                                </p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium text-muted-foreground">Phone Number</p>
+                                <p className="flex items-center">
+                                  <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  {wardenProfile.phone}
+                                </p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium text-muted-foreground">Hostel</p>
+                                <p className="flex items-center">
+                                  <Building2 className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  {wardenProfile.hostelName}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 </TabsContent>
                 
