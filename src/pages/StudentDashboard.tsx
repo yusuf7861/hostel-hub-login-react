@@ -1,27 +1,34 @@
+import {
+  Activity,
+  Bell,
+  Calendar,
+  CreditCard,
+  Home as HomeIcon,
+  LogOut,
+  MessageSquare,
+  Settings,
+  User,
+  UserPlus
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  User, 
-  Settings, 
-  LogOut,
-  Book,
-  Calendar,
-  Home as HomeIcon,
-  Bell,
-  CreditCard,
-  MessageSquare,
-  ChevronDown,
-  Users,
-  Clock,
-  Activity,
-  UserPlus,
-  List
-} from "lucide-react";
 
+import { logout } from "@/api/auth";
+import { studentApi } from "@/api/studentApi";
+import { StudentIllustration } from "@/components/assets";
+import BookingsTab from "@/components/student/BookingsTab";
+import ComplaintsTab from "@/components/student/ComplaintsTab";
+import PaymentsTab from "@/components/student/PaymentsTab";
+import StudentProfileTab from "@/components/student/StudentProfileTab";
+import StudentRegistrationForm from "@/components/student/StudentRegistrationForm";
+import StudentUpdateForm from "@/components/student/StudentUpdateForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
+import { Card } from "@/components/ui/card";
+import { ActivityChart } from "@/components/ui/dashboard/activity-chart";
+import { RecentActivity } from "@/components/ui/dashboard/recent-activity";
+import { StatsCard } from "@/components/ui/dashboard/stats-card";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -29,23 +36,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { studentApi } from "@/api/studentApi";
-import { logout } from "@/api/auth";
-import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import StudentProfileTab from "@/components/student/StudentProfileTab";
-import BookingsTab from "@/components/student/BookingsTab";
-import PaymentsTab from "@/components/student/PaymentsTab";
-import ComplaintsTab from "@/components/student/ComplaintsTab";
-import { useQuery } from "@tanstack/react-query";
-import { StatsCard } from "@/components/ui/dashboard/stats-card";
-import { ActivityChart } from "@/components/ui/dashboard/activity-chart";
-import { RecentActivity } from "@/components/ui/dashboard/recent-activity";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { StudentIllustration } from "@/components/assets";
-import StudentRegistrationForm from "@/components/student/StudentRegistrationForm";
-import StudentUpdateForm from "@/components/student/StudentUpdateForm";
-import AllStudentsList from "@/components/student/AllStudentsList";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const activityData = [
   { name: "Jan", value: 30 },
@@ -188,14 +182,14 @@ const StudentDashboard = () => {
             <Settings className="mr-2 h-4 w-4" />
             Update Profile
           </Button>
-          <Button 
+          {/* <Button 
             variant="ghost" 
             className={`w-full justify-start ${activeTab === "allStudents" ? "bg-primary/10" : ""}`}
             onClick={() => setActiveTab("allStudents")}
           >
             <List className="mr-2 h-4 w-4" />
             All Students
-          </Button>
+          </Button> */}
         </nav>
         
         <div className="pt-4 border-t mt-auto">
@@ -234,9 +228,9 @@ const StudentDashboard = () => {
                       <p className="text-sm font-medium leading-none">
                         {profile ? profile.name : "Loading..."}
                       </p>
-                      <p className="text-xs leading-none text-muted-foreground">
+                      {/* <p className="text-xs leading-none text-muted-foreground">
                         {profile ? profile.email : ""}
-                      </p>
+                      </p> */}
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -284,7 +278,7 @@ const StudentDashboard = () => {
                   <TabsTrigger value="complaints">Complaints</TabsTrigger>
                   <TabsTrigger value="register">Register</TabsTrigger>
                   <TabsTrigger value="updateProfile">Update Profile</TabsTrigger>
-                  <TabsTrigger value="allStudents">All Students</TabsTrigger>
+                  {/* <TabsTrigger value="allStudents">All Students</TabsTrigger> */}
                 </TabsList>
                 
                 <TabsContent value="overview">
@@ -361,9 +355,9 @@ const StudentDashboard = () => {
                 <TabsContent value="updateProfile">
                   {profile && <StudentUpdateForm student={profile} onSuccess={handleProfileUpdateSuccess} />}
                 </TabsContent>
-                <TabsContent value="allStudents">
+                {/* <TabsContent value="allStudents">
                   <AllStudentsList />
-                </TabsContent>
+                </TabsContent> */}
               </Tabs>
             )}
           </div>

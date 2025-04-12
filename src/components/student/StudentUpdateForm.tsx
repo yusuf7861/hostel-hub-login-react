@@ -21,8 +21,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const formSchema = z.object({
   guardianContactNumber: z.string().min(10, { message: "Contact number must be at least 10 characters" }),
   phone: z.string().min(10, { message: "Phone number must be at least 10 characters" }),
-  department: z.string().min(2, { message: "Department must be at least 2 characters" }),
-  collegeName: z.string().min(2, { message: "College name must be at least 2 characters" }),
   address: z.string().min(5, { message: "Address must be at least 5 characters" }),
 });
 
@@ -39,8 +37,6 @@ const StudentUpdateForm = ({ student, onSuccess }: StudentUpdateFormProps) => {
     defaultValues: {
       guardianContactNumber: student?.guardianContactNumber || "",
       phone: student?.phone || "",
-      department: student?.department || "",
-      collegeName: student?.collegeName || "",
       address: student?.address || "",
     },
   });
@@ -49,7 +45,9 @@ const StudentUpdateForm = ({ student, onSuccess }: StudentUpdateFormProps) => {
     try {
       setIsSubmitting(true);
       const updateData: UpdateStudent = {
-        ...values,
+        guardianContactNumber: values.guardianContactNumber,
+        phone: values.phone,
+        address: values.address,
       };
       await studentApi.updateStudent(updateData);
       toast.success("Profile updated successfully!");
@@ -93,34 +91,6 @@ const StudentUpdateForm = ({ student, onSuccess }: StudentUpdateFormProps) => {
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <Input placeholder="Your contact number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="department"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Department</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your department" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="collegeName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>College Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your college name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -12,33 +12,28 @@ export interface Student {
   collegeName: string;
   address: string;
   // Add missing properties that are used in components
-  email?: string;
-  rollNumber?: string;
+  // email?: string;
+  // rollNumber?: string;
   contactNumber?: string;
   roomId?: number;
   hostelId?: number;
 }
 
 export interface StudentRegistration {
-  "name": "string",
-  "guardianName": "string",
-  "guardianContactNumber": "string",
-  "gender": "string",
-  "phone": "6821663462",
-  "department": "string",
-  "collegeName": "string",
-  "address": "string"
+  "name": string,
+  "guardianName": string,
+  "guardianContactNumber": string,
+  "gender": string,
+  "phone": number,
+  "department": string,
+  "collegeName": string,
+  "address": string
 }
 
 export interface UpdateStudent {
-  "guardianContactNumber"?: string;
-  "phone"?: string;
-  "department"?: string;
-  "address"?: string;
-  "collegeName"?: string;
-  // Add email field to match what's being used in StudentProfileTab
-  "email"?: string;
-  "contactNumber"?: string;
+  "guardianContactNumber": string,
+  "phone": string,
+  "address": string,
 }
 
 // Student API calls
