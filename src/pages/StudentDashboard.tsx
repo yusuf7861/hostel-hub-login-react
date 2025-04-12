@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -14,7 +13,9 @@ import {
   ChevronDown,
   Users,
   Clock,
-  Activity
+  Activity,
+  UserPlus,
+  List
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -42,8 +43,10 @@ import { ActivityChart } from "@/components/ui/dashboard/activity-chart";
 import { RecentActivity } from "@/components/ui/dashboard/recent-activity";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StudentIllustration } from "@/components/assets";
+import StudentRegistrationForm from "@/components/student/StudentRegistrationForm";
+import StudentUpdateForm from "@/components/student/StudentUpdateForm";
+import AllStudentsList from "@/components/student/AllStudentsList";
 
-// Sample data for the activity chart
 const activityData = [
   { name: "Jan", value: 30 },
   { name: "Feb", value: 40 },
@@ -55,7 +58,6 @@ const activityData = [
   { name: "Aug", value: 91 },
 ];
 
-// Sample data for recent activities with correct actionType values
 const recentActivities = [
   {
     id: "1",
@@ -85,7 +87,7 @@ const StudentDashboard = () => {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("overview");
 
-  const { data: profile, isLoading, error } = useQuery({
+  const { data: profile, isLoading, error, refetch } = useQuery({
     queryKey: ['studentProfile'],
     queryFn: studentApi.getStudentProfile
   });
@@ -108,6 +110,11 @@ const StudentDashboard = () => {
 
   const handleSettingsClick = () => {
     toast.info("Settings page coming soon!");
+  };
+
+  const handleProfileUpdateSuccess = () => {
+    refetch();
+    toast.success("Profile updated successfully");
   };
 
   const getInitials = (name: string) => {
@@ -164,6 +171,30 @@ const StudentDashboard = () => {
           >
             <MessageSquare className="mr-2 h-4 w-4" />
             Complaints
+          </Button>
+          <Button 
+            variant="ghost" 
+            className={`w-full justify-start ${activeTab === "register" ? "bg-primary/10" : ""}`}
+            onClick={() => setActiveTab("register")}
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            Register Student
+          </Button>
+          <Button 
+            variant="ghost" 
+            className={`w-full justify-start ${activeTab === "updateProfile" ? "bg-primary/10" : ""}`}
+            onClick={() => setActiveTab("updateProfile")}
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            Update Profile
+          </Button>
+          <Button 
+            variant="ghost" 
+            className={`w-full justify-start ${activeTab === "allStudents" ? "bg-primary/10" : ""}`}
+            onClick={() => setActiveTab("allStudents")}
+          >
+            <List className="mr-2 h-4 w-4" />
+            All Students
           </Button>
         </nav>
         
@@ -251,6 +282,9 @@ const StudentDashboard = () => {
                   <TabsTrigger value="bookings">Bookings</TabsTrigger>
                   <TabsTrigger value="payments">Payments</TabsTrigger>
                   <TabsTrigger value="complaints">Complaints</TabsTrigger>
+                  <TabsTrigger value="register">Register</TabsTrigger>
+                  <TabsTrigger value="updateProfile">Update Profile</TabsTrigger>
+                  <TabsTrigger value="allStudents">All Students</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="overview">
@@ -320,6 +354,15 @@ const StudentDashboard = () => {
                 </TabsContent>
                 <TabsContent value="complaints">
                   <ComplaintsTab studentId={profile?.id} />
+                </TabsContent>
+                <TabsContent value="register">
+                  <StudentRegistrationForm />
+                </TabsContent>
+                <TabsContent value="updateProfile">
+                  {profile && <StudentUpdateForm student={profile} onSuccess={handleProfileUpdateSuccess} />}
+                </TabsContent>
+                <TabsContent value="allStudents">
+                  <AllStudentsList />
                 </TabsContent>
               </Tabs>
             )}
