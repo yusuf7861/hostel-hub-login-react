@@ -57,9 +57,18 @@ const StudentRegistrationForm = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsSubmitting(true);
+      // Create a properly typed registration data object
       const registrationData: StudentRegistration = {
-        ...values,
+        name: values.name,
+        guardianName: values.guardianName,
+        guardianContactNumber: values.guardianContactNumber,
+        gender: values.gender,
+        phone: values.phone,
+        department: values.department,
+        collegeName: values.collegeName,
+        address: values.address
       };
+      
       await studentApi.registerStudent(registrationData);
       toast.success("Student registered successfully!");
       form.reset();

@@ -20,14 +20,14 @@ export interface Student {
 }
 
 export interface StudentRegistration {
-  "name": "string",
-  "guardianName": "string",
-  "guardianContactNumber": "string",
-  "gender": "string",
-  "phone": "6821663462",
-  "department": "string",
-  "collegeName": "string",
-  "address": "string"
+  name: string;
+  guardianName: string;
+  guardianContactNumber: string;
+  gender: string;
+  phone: string;
+  department: string;
+  collegeName: string;
+  address: string;
 }
 
 export interface UpdateStudent {
