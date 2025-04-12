@@ -1,9 +1,9 @@
 
-import { ArrowRight, Building2, ShieldCheck, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import NavBar from "@/components/NavBar";
+import { Button } from "@/components/ui/button";
 import { Illustration, IllustrationContainer } from "@/components/ui/illustration";
+import { ArrowRight, Building2, ShieldCheck, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const features = [
   {
@@ -58,6 +58,7 @@ const Index = () => {
                     <path d="M248 148C187.307 148 138 197.307 138 258C138 318.693 187.307 368 248 368C308.693 368 358 318.693 358 258C358 197.307 308.693 148 248 148ZM248 328C209.383 328 178 296.617 178 258C178 219.383 209.383 188 248 188C286.617 188 318 219.383 318 258C318 296.617 286.617 328 248 328Z" fill="white" fillOpacity="0.8" />
                     <circle cx="248" cy="258" r="30" fill="white" fillOpacity="0.6" />
                   </svg>
+                  
                 </Illustration>
               </IllustrationContainer>
             </div>

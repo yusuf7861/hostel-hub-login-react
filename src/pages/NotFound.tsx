@@ -1,5 +1,5 @@
-import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const NotFound = () => {
   const location = useLocation();
@@ -14,8 +14,7 @@ const NotFound = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
+      <img src="/assets/404page.svg" alt="404 Not Found" className="w-80 mx-auto mb-6" />
         <a href="/" className="text-blue-500 hover:text-blue-700 underline">
           Return to Home
         </a>
