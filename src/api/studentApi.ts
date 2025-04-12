@@ -1,4 +1,3 @@
-
 import { apiClient } from "./client";
 
 export interface Student {
@@ -11,12 +10,6 @@ export interface Student {
   department: string;
   collegeName: string;
   address: string;
-  // Add missing properties that are used in components
-  // email?: string;
-  // rollNumber?: string;
-  contactNumber?: string;
-  roomId?: number;
-  hostelId?: number;
 }
 
 export interface StudentRegistration {
@@ -24,7 +17,7 @@ export interface StudentRegistration {
   "guardianName": string,
   "guardianContactNumber": string,
   "gender": string,
-  "phone": number,
+  "phone": string, // Changed from number to string to match usage
   "department": string,
   "collegeName": string,
   "address": string
