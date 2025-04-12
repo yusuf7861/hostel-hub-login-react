@@ -1,11 +1,26 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Shield, User, LogOut, Users, Building2, Settings } from "lucide-react";
+import { 
+  Shield, 
+  User, 
+  LogOut, 
+  Users, 
+  Building2, 
+  Settings, 
+  Activity,
+  FileText,
+  CheckCircle,
+  PieChart,
+  UserPlus,
+  Edit,
+  AtSign,
+  Phone
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -22,10 +37,81 @@ import StudentsList from "@/components/admin/StudentsList";
 import HostelsList from "@/components/admin/HostelsList";
 import WardenRegistration from "@/components/admin/WardenRegistration";
 import { toast } from "sonner";
+import { StatsCard } from "@/components/ui/dashboard/stats-card";
+import { ActivityChart } from "@/components/ui/dashboard/activity-chart";
+import { RecentActivity } from "@/components/ui/dashboard/recent-activity";
+import { DashboardIllustration } from "@/components/assets";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+
+// Sample data for the activity chart
+const occupancyData = [
+  { name: "Jan", value: 65 },
+  { name: "Feb", value: 70 },
+  { name: "Mar", value: 75 },
+  { name: "Apr", value: 80 },
+  { name: "May", value: 85 },
+  { name: "Jun", value: 90 },
+  { name: "Jul", value: 92 },
+  { name: "Aug", value: 88 },
+];
+
+// Sample data for recent activities with correct actionType values
+const recentActivities = [
+  {
+    id: "1",
+    user: { name: "System", initials: "SY" },
+    action: "generated monthly report",
+    timestamp: "1 hour ago",
+    actionType: "info" as const
+  },
+  {
+    id: "2",
+    user: { name: "Admin", initials: "AD" },
+    action: "registered new warden",
+    timestamp: "Yesterday",
+    actionType: "success" as const
+  },
+  {
+    id: "3",
+    user: { name: "Warden", initials: "WD" },
+    action: "requested maintenance for Block C",
+    timestamp: "2 days ago",
+    actionType: "warning" as const
+  },
+];
+
+// Added interface for admin profile
+interface AdminProfile {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+}
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("wardens");
+  const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  
+  // Sample admin profile data
+  const [adminProfile, setAdminProfile] = useState<AdminProfile>({
+    id: 1,
+    name: "Admin User",
+    email: "admin@example.com",
+    phone: "+91 9988776655",
+    role: "Super Admin"
+  });
+  
+  const [formData, setFormData] = useState({
+    name: adminProfile.name,
+    email: adminProfile.email,
+    phone: adminProfile.phone
+  });
 
   const { data: wardens, isLoading: isWardensLoading, error: wardensError } = useQuery({
     queryKey: ['adminWardens'],
@@ -56,8 +142,43 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleProfileSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminProfile({
+      ...adminProfile,
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone
+    });
+    setIsEditProfileOpen(false);
+    toast.success("Profile updated successfully");
+  };
+
   const isLoading = isWardensLoading || isStudentsLoading;
   const hasError = wardensError || studentsError;
+
+  // Calculate stats
+  const totalWardens = wardens?.length || 0;
+  const totalStudents = students?.length || 0;
+  const totalHostels = 5; // Example static value
+  const occupancyRate = 88; // Example static value
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map(part => part[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -67,7 +188,23 @@ const AdminDashboard = () => {
         <nav className="flex-1 space-y-2">
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className={`w-full justify-start ${activeTab === "overview" ? "bg-primary/10" : ""}`}
+            onClick={() => setActiveTab("overview")}
+          >
+            <Activity className="mr-2 h-4 w-4" />
+            Overview
+          </Button>
+          <Button
+            variant="ghost"
+            className={`w-full justify-start ${activeTab === "profile" ? "bg-primary/10" : ""}`}
+            onClick={() => setActiveTab("profile")}
+          >
+            <User className="mr-2 h-4 w-4" />
+            Profile
+          </Button>
+          <Button
+            variant="ghost"
+            className={`w-full justify-start ${activeTab === "wardens" ? "bg-primary/10" : ""}`}
             onClick={() => setActiveTab("wardens")}
           >
             <Users className="mr-2 h-4 w-4" />
@@ -75,7 +212,7 @@ const AdminDashboard = () => {
           </Button>
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className={`w-full justify-start ${activeTab === "students" ? "bg-primary/10" : ""}`}
             onClick={() => setActiveTab("students")}
           >
             <User className="mr-2 h-4 w-4" />
@@ -83,7 +220,7 @@ const AdminDashboard = () => {
           </Button>
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className={`w-full justify-start ${activeTab === "hostels" ? "bg-primary/10" : ""}`}
             onClick={() => setActiveTab("hostels")}
           >
             <Building2 className="mr-2 h-4 w-4" />
@@ -91,7 +228,7 @@ const AdminDashboard = () => {
           </Button>
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className={`w-full justify-start ${activeTab === "registerWarden" ? "bg-primary/10" : ""}`}
             onClick={() => setActiveTab("registerWarden")}
           >
             <Shield className="mr-2 h-4 w-4" />
@@ -122,21 +259,21 @@ const AdminDashboard = () => {
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar>
                       <AvatarImage src="" alt="Admin profile" />
-                      <AvatarFallback>AD</AvatarFallback>
+                      <AvatarFallback>{getInitials(adminProfile.name)}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">Admin User</p>
+                      <p className="text-sm font-medium leading-none">{adminProfile.name}</p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        admin@example.com
+                        {adminProfile.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("profile")}>
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
@@ -156,7 +293,7 @@ const AdminDashboard = () => {
         </header>
 
         {/* Dashboard content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 overflow-auto">
           <div className="container mx-auto">
             <h1 className="mb-6 text-2xl font-bold">Admin Dashboard</h1>
             {isLoading ? (
@@ -177,11 +314,183 @@ const AdminDashboard = () => {
             ) : (
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="mb-6">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="profile">Profile</TabsTrigger>
                   <TabsTrigger value="wardens">Wardens</TabsTrigger>
                   <TabsTrigger value="students">Students</TabsTrigger>
                   <TabsTrigger value="hostels">Hostels</TabsTrigger>
                   <TabsTrigger value="registerWarden">Register Warden</TabsTrigger>
                 </TabsList>
+                
+                <TabsContent value="overview">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <StatsCard 
+                      title="Total Students" 
+                      value={totalStudents}
+                      icon={<Users className="h-4 w-4" />}
+                      description="Registered students"
+                      trend={{ value: 12, isPositive: true }}
+                    />
+                    <StatsCard 
+                      title="Total Wardens" 
+                      value={totalWardens}
+                      icon={<Shield className="h-4 w-4" />}
+                      description="Active staff members"
+                    />
+                    <StatsCard 
+                      title="Hostels" 
+                      value={totalHostels}
+                      icon={<Building2 className="h-4 w-4" />}
+                      description="Managed properties"
+                    />
+                    <StatsCard 
+                      title="Occupancy Rate" 
+                      value={`${occupancyRate}%`}
+                      icon={<PieChart className="h-4 w-4" />}
+                      description="Current occupancy"
+                      trend={{ value: 5, isPositive: true }}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <ActivityChart 
+                      title="Hostel Occupancy Trends" 
+                      data={occupancyData}
+                      className="lg:col-span-2"
+                    />
+                    
+                    {!isMobile && (
+                      <Card className="overflow-hidden flex items-center justify-center p-6 bg-primary/5">
+                        <img 
+                          src={DashboardIllustration} 
+                          alt="Admin Dashboard" 
+                          className="max-w-full h-auto object-contain max-h-[250px]" 
+                        />
+                      </Card>
+                    )}
+                    
+                    <RecentActivity 
+                      title="Recent Activities" 
+                      activities={recentActivities}
+                      className="lg:col-span-3"
+                    />
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="profile">
+                  <div className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle>Admin Profile</CardTitle>
+                            <CardDescription>Your personal and contact information</CardDescription>
+                          </div>
+                          <Dialog open={isEditProfileOpen} onOpenChange={setIsEditProfileOpen}>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Profile
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Edit Your Profile</DialogTitle>
+                                <DialogDescription>
+                                  Update your personal information below
+                                </DialogDescription>
+                              </DialogHeader>
+                              <form onSubmit={handleProfileSubmit}>
+                                <div className="grid gap-4 py-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="name">Full Name</Label>
+                                    <Input
+                                      id="name"
+                                      name="name"
+                                      value={formData.name}
+                                      onChange={handleInputChange}
+                                      placeholder="Your full name"
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="email">Email</Label>
+                                    <Input
+                                      id="email"
+                                      name="email"
+                                      type="email"
+                                      value={formData.email}
+                                      onChange={handleInputChange}
+                                      placeholder="Your email address"
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="phone">Phone Number</Label>
+                                    <Input
+                                      id="phone"
+                                      name="phone"
+                                      value={formData.phone}
+                                      onChange={handleInputChange}
+                                      placeholder="Your phone number"
+                                    />
+                                  </div>
+                                </div>
+                                <DialogFooter>
+                                  <Button type="submit">Save Changes</Button>
+                                </DialogFooter>
+                              </form>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex flex-col md:flex-row gap-8">
+                          <div className="flex flex-col items-center space-y-4">
+                            <Avatar className="h-32 w-32">
+                              <AvatarImage src="" alt="Admin avatar" />
+                              <AvatarFallback className="text-2xl">{getInitials(adminProfile.name)}</AvatarFallback>
+                            </Avatar>
+                            <Button variant="outline" size="sm">
+                              Upload Photo
+                            </Button>
+                          </div>
+                          <div className="flex-1 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium text-muted-foreground">Full Name</p>
+                                <p className="flex items-center">
+                                  <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  {adminProfile.name}
+                                </p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium text-muted-foreground">Email</p>
+                                <p className="flex items-center">
+                                  <AtSign className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  {adminProfile.email}
+                                </p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium text-muted-foreground">Phone Number</p>
+                                <p className="flex items-center">
+                                  <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  {adminProfile.phone}
+                                </p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium text-muted-foreground">Role</p>
+                                <p className="flex items-center">
+                                  <Shield className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  {adminProfile.role}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+                
                 <TabsContent value="wardens">
                   <WardensList wardens={wardens || []} isLoading={isWardensLoading} />
                 </TabsContent>
